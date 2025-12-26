@@ -1,8 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Share2 } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { Heart } from 'lucide-react';
+import { useState } from 'react';
 import { Post, supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useAge, getAgeTheme } from '@/context/AgeContext';
 
@@ -18,183 +18,67 @@ export default function PostCard({ post, index, onResonate }: PostCardProps) {
   const [isResonating, setIsResonating] = useState(false);
   const [localResonateCount, setLocalResonateCount] = useState(post.resonate_count);
   const [hasResonated, setHasResonated] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const categoryColor = theme.categoryColors[post.category];
 
   const handleResonate = async () => {
     if (hasResonated) return;
-
     setIsResonating(true);
     setHasResonated(true);
     const newCount = localResonateCount + 1;
     setLocalResonateCount(newCount);
-
-    // Optimistic update callback
     onResonate?.(post.id, newCount);
 
-    // Only update database if Supabase is configured
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase
-          .from('posts')
-          .update({ resonate_count: newCount })
-          .eq('id', post.id);
-      } catch (error) {
-        // Revert on error
-        setLocalResonateCount(localResonateCount);
-        setHasResonated(false);
-        console.error('Failed to resonate:', error);
-      }
+        await supabase.from('posts').update({ resonate_count: newCount }).eq('id', post.id);
+      } catch (error) { console.error(error); }
     }
-
-    setTimeout(() => setIsResonating(false), 600);
-  };
-
-  const handleShare = async () => {
-    // Dynamic import for html2canvas (client-side only)
-    const html2canvas = (await import('html2canvas')).default;
-
-    if (!cardRef.current) return;
-
-    try {
-      // Create a canvas from the card
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: null,
-        scale: 2,
-        logging: false,
-        useCORS: true,
-      });
-
-      // Convert to blob and download
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = `the-100-year-scroll-age-${post.age_associated}.png`;
-          link.href = url;
-          link.click();
-          URL.revokeObjectURL(url);
-        }
-      }, 'image/png');
-    } catch (error) {
-      console.error('Failed to generate share image:', error);
-    }
-  };
-
-  const getCategoryLabel = (category: string) => {
-    switch (category) {
-      case 'Struggle':
-        return '💔';
-      case 'Joy':
-        return '✨';
-      case 'Realization':
-        return '💡';
-      default:
-        return '📝';
-    }
+    setTimeout(() => setIsResonating(false), 800);
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative"
+      transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      className="group"
     >
       <div
-        ref={cardRef}
-        className="relative overflow-hidden rounded-2xl backdrop-blur-md transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl"
+        className="relative overflow-hidden p-8 transition-transform duration-500 hover:-translate-y-2"
         style={{
-          background: theme.cardBg,
-          border: `1px solid ${theme.cardBorder}`,
-          boxShadow: hasResonated
-            ? `0 0 30px ${theme.accentGlow}40, 0 4px 20px rgba(0,0,0,0.1)`
-            : '0 4px 20px rgba(0,0,0,0.1)',
+          background: 'rgba(255, 255, 255, 0.05)', // Super transparent
+          backdropFilter: 'blur(40px)', // Heavy blur (2xl equivalent)
+          WebkitBackdropFilter: 'blur(40px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '0px', // High-end feeling often uses sharper corners or very subtle radii. Let's stick to 2px or 0.
         }}
       >
-        {/* Resonate glow effect */}
-        <AnimatePresence>
-          {isResonating && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1.5 }}
-              exit={{ opacity: 0, scale: 2 }}
-              transition={{ duration: 0.6 }}
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: `radial-gradient(circle at center, ${theme.accentGlow}60 0%, transparent 70%)`,
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Card content */}
-        <div className="relative p-6">
-          {/* Category badge */}
-          <div className="flex items-center justify-between mb-4">
-            <span
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
-              style={{
-                background: `${categoryColor}20`,
-                color: categoryColor,
-                border: `1px solid ${categoryColor}40`,
-              }}
+        <div className="mb-8">
+            <span 
+              className="text-[0.65rem] uppercase tracking-[0.2em] opacity-60 font-sans" 
+              style={{ color: theme.textPrimary }}
             >
-              <span>{getCategoryLabel(post.category)}</span>
               {post.category}
             </span>
-          </div>
+        </div>
 
-          {/* Quote content */}
-          <p
-            className="text-base leading-relaxed mb-6 font-serif italic"
-            style={{ color: theme.textPrimary }}
-          >
-            &ldquo;{post.content}&rdquo;
-          </p>
+        <p className="font-serif text-xl md:text-2xl italic leading-relaxed mb-8" style={{ color: theme.textPrimary }}>
+          "{post.content}"
+        </p>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: theme.cardBorder }}>
-            {/* Resonate button */}
-            <motion.button
-              onClick={handleResonate}
-              disabled={hasResonated}
-              className="flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300"
-              style={{
-                background: hasResonated ? `${theme.accent}30` : 'transparent',
-                color: hasResonated ? theme.accent : theme.textSecondary,
-                border: `1px solid ${hasResonated ? theme.accent : theme.cardBorder}`,
-              }}
-              whileHover={{ scale: hasResonated ? 1 : 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        <div className="flex justify-between items-end border-t border-white/10 pt-6">
+            <button 
+               onClick={handleResonate}
+               className="group/btn flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity"
             >
-              <motion.div
-                animate={isResonating ? { rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 0.5 }}
-              >
-                <Sparkles size={16} style={{ color: hasResonated ? theme.accentGlow : 'inherit' }} />
-              </motion.div>
-              <span className="text-sm font-medium">{localResonateCount}</span>
-            </motion.button>
-
-            {/* Share button */}
-            <motion.button
-              onClick={handleShare}
-              className="p-2 rounded-full transition-all duration-300"
-              style={{
-                color: theme.textMuted,
-              }}
-              whileHover={{
-                scale: 1.1,
-                color: theme.accent,
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Share2 size={16} />
-            </motion.button>
-          </div>
+               <Heart 
+                 size={18} 
+                 className={`transition-all duration-500 ${hasResonated ? 'fill-current' : ''}`}
+                 style={{ color: hasResonated ? theme.accent : theme.textPrimary }}
+               />
+               <span className="text-xs font-sans tracking-widest" style={{ color: theme.textPrimary }}>
+                  {localResonateCount}
+               </span>
+            </button>
         </div>
       </div>
     </motion.div>

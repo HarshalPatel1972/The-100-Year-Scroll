@@ -1,165 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
-
 @import "tailwindcss";
 
 :root {
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@theme {
+  --font-playfair: var(--font-playfair);
+  --font-inter: var(--font-inter);
 }
 
-html {
-  scroll-behavior: smooth;
+/* Scrollbar hiding logic */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
 }
 
-body {
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
-
-/* Custom scrollbar for modern browsers */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Serif font utility */
-.font-serif {
-  font-family: var(--font-serif);
-}
-
-/* Remove number input spinners */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-/* Selection highlight */
-::selection {
-  background: rgba(255, 200, 180, 0.3);
-  color: inherit;
-}
-
-/* Focus outline for accessibility */
-*:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
-  outline-offset: 2px;
-}
-
-/* Smooth transitions for theme changes */
-.theme-transition {
-  transition: background-color 1s ease, color 0.5s ease, border-color 0.5s ease;
-}
-
-/* Glassmorphism base */
+/* Glassmorphism Utilities */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Animation utilities */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+/* Noise Texture */
+.noise-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
-  }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-/* Responsive heading styles */
-h1 {
-  font-size: 2.25rem; /* text-4xl */
-  line-height: 2.5rem;
-}
-
-h2 {
-  font-size: 1.5rem; /* text-2xl */
-  line-height: 2rem;
-}
-
-h3 {
-  font-size: 1.25rem; /* text-xl */
-  line-height: 1.75rem;
-}
-
-@media (min-width: 640px) {
-  h1 {
-    font-size: 3rem; /* sm:text-5xl */
-    line-height: 1;
-  }
-  
-  h2 {
-    font-size: 1.875rem; /* sm:text-3xl */
-    line-height: 2.25rem;
-  }
-  
-  h3 {
-    font-size: 1.5rem; /* sm:text-2xl */
-    line-height: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  h1 {
-    font-size: 3.75rem; /* lg:text-6xl */
-    line-height: 1;
-  }
-  
-  h2 {
-    font-size: 2.25rem; /* lg:text-4xl */
-    line-height: 2.5rem;
-  }
-}
-
-/* Print styles for share feature */
-@media print {
-  body {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
 }

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
-import { useAge, getAgeTheme } from '@/context/AgeContext';
+import { useAge } from '@/context/AgeContext';
 
 interface LandingHeroProps {
   onEnter: (age: number) => void;
@@ -12,136 +12,117 @@ export default function LandingHero({ onEnter }: LandingHeroProps) {
   const { setCurrentAge, setHasEnteredScroll } = useAge();
   const [inputValue, setInputValue] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [displayAge, setDisplayAge] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Focus input on mount
-    setTimeout(() => inputRef.current?.focus(), 500);
+    // Focus after a slight delay for drama
+    setTimeout(() => inputRef.current?.focus(), 800);
   }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputValue(val);
+    
+    // Real-time background update
+    const age = parseInt(val, 10);
+    if (!isNaN(age) && age >= 0 && age <= 100) {
+      setCurrentAge(age);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const age = parseInt(inputValue, 10);
 
-    if (isNaN(age) || age < 0 || age > 100) {
-      // Shake animation feedback
-      return;
-    }
+    if (isNaN(age) || age < 0 || age > 100) return;
 
-    setDisplayAge(age);
     setIsTransitioning(true);
+    // Ensure context is set
     setCurrentAge(age);
 
-    // Delay before transitioning to main feed
     setTimeout(() => {
       setHasEnteredScroll(true);
       onEnter(age);
-    }, 1500);
+    }, 1000);
   };
 
-  const theme = displayAge !== null ? getAgeTheme(displayAge) : null;
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
-      {/* Animated title */}
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden">
+      
+      {/* Massive Editorial Headline */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: isTransitioning ? 0 : 1, y: isTransitioning ? -50 : 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center mb-12"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: isTransitioning ? 0 : 1, y: isTransitioning ? -100 : 0 }}
+        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }} // Custom editorial ease
+        className="w-full max-w-6xl text-center mb-32 z-10"
       >
-        <motion.h1
-          className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold text-white mb-4"
-          initial={{ letterSpacing: '0.02em' }}
-          animate={{ letterSpacing: isTransitioning ? '0.1em' : '0.02em' }}
+        <h1 
+          className="font-serif font-black text-6xl md:text-8xl lg:text-9xl leading-none text-white tracking-tighter"
+          style={{ textShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
         >
           The 100-Year Scroll
-        </motion.h1>
-        <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto font-light">
-          A collaborative timeline of human wisdom. Anonymous stories from every age.
+        </h1>
+        <div className="h-px w-24 bg-white/30 mx-auto mt-8 mb-8" />
+        <p className="font-sans text-lg md:text-xl text-white/70 tracking-wide uppercase text-xs font-medium">
+          A Timeline of Human Wisdom
         </p>
       </motion.div>
 
-      {/* Age input form */}
+      {/* Cinematic Sentence Input */}
       <motion.form
         onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: isTransitioning ? 0 : 1, y: isTransitioning ? 50 : 0, scale: isTransitioning ? 0.9 : 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ 
+          opacity: isTransitioning ? 0 : 1, 
+          scale: isTransitioning ? 1.1 : 1 
+        }}
+        transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-4xl"
       >
-        <div className="relative">
-          <input
-            ref={inputRef}
-            type="number"
-            min="0"
-            max="100"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="?"
-            className="w-48 h-48 sm:w-56 sm:h-56 text-center text-6xl sm:text-7xl font-serif font-bold rounded-full bg-white/10 backdrop-blur-md border-2 border-white/20 text-white placeholder-white/30 focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all duration-300"
-            style={{
-              WebkitAppearance: 'none',
-              MozAppearance: 'textfield',
-            }}
-          />
-          {/* Glow effect */}
-          <div
-            className="absolute inset-0 rounded-full pointer-events-none opacity-50"
-            style={{
-              background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-            }}
-          />
+        <div className="flex flex-col md:flex-row items-baseline justify-center gap-4 text-3xl md:text-5xl lg:text-6xl text-white font-serif italic text-center md:text-left leading-relaxed">
+          <span className="opacity-60 font-sans font-light not-italic text-sm md:text-xl tracking-widest uppercase mb-4 md:mb-0">
+            I am
+          </span>
+          
+          <div className="relative inline-block mx-4">
+            <input
+              ref={inputRef}
+              type="number"
+              min="0"
+              max="100"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder="0"
+              className="w-32 md:w-48 bg-transparent text-center border-b-2 border-white/30 focus:border-white focus:outline-none transition-colors duration-500 placeholder-white/20 font-serif font-bold"
+              style={{
+                MozAppearance: 'textfield',
+              }}
+            />
+          </div>
+
+          <span className="opacity-60 font-sans font-light not-italic text-sm md:text-xl tracking-widest uppercase mt-4 md:mt-0">
+            years old today
+          </span>
         </div>
 
-        <motion.p
+        {/* Submit Ghost Button */}
+        <motion.div 
+          className="mt-16 flex justify-center"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-6 text-white/50 text-lg"
+          animate={{ opacity: inputValue ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
         >
-          How old are you today?
-        </motion.p>
-
-        <motion.button
-          type="submit"
-          className="mt-8 w-full py-4 px-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-medium text-lg hover:bg-white/20 transition-all duration-300"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Enter the Scroll →
-        </motion.button>
-      </motion.form>
-
-      {/* Age number zoom transition */}
-      {isTransitioning && displayAge !== null && theme && (
-        <motion.div
-          initial={{ scale: 1, opacity: 1 }}
-          animate={{ scale: 3, opacity: 0 }}
-          transition={{ duration: 1.2, ease: 'easeInOut' }}
-          className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
-        >
-          <span
-            className="text-9xl sm:text-[12rem] font-serif font-bold"
-            style={{ color: theme.textPrimary }}
+          <button
+            type="submit"
+            className="group relative px-8 py-3 overflow-hidden rounded-full transition-all duration-300 hover:tracking-widest"
           >
-            {displayAge}
-          </span>
+            <div className="absolute inset-0 border border-white/20 rounded-full group-hover:bg-white/10 transition-all duration-300" />
+            <span className="relative text-sm uppercase tracking-widest text-white font-medium">
+              Enter The Scroll
+            </span>
+          </button>
         </motion.div>
-      )}
-
-      {/* Bottom hint */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isTransitioning ? 0 : 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 text-center"
-      >
-        <p className="text-white/30 text-sm">
-          🌿 Explore wisdom from ages 0 to 100
-        </p>
-      </motion.div>
+      </motion.form>
     </div>
   );
 }

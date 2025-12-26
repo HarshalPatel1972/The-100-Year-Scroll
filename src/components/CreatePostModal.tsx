@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import { useAge, getAgeTheme } from '@/context/AgeContext';
-import { PostCategory, supabase, isSupabaseConfigured, Post } from '@/lib/supabase';
+import { PostCategory, supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -12,231 +12,108 @@ interface CreatePostModalProps {
   onPostCreated: () => void;
 }
 
-const categories: { value: PostCategory; label: string; emoji: string }[] = [
-  { value: 'Struggle', label: 'Struggle', emoji: '💔' },
-  { value: 'Joy', label: 'Joy', emoji: '✨' },
-  { value: 'Realization', label: 'Realization', emoji: '💡' },
+const categories: { value: PostCategory; label: string }[] = [
+  { value: 'Struggle', label: 'Struggle' },
+  { value: 'Joy', label: 'Joy' },
+  { value: 'Realization', label: 'Realization' },
 ];
 
-export default function CreatePostModal({
-  isOpen,
-  onClose,
-  onPostCreated,
-}: CreatePostModalProps) {
+export default function CreatePostModal({ isOpen, onClose, onPostCreated }: CreatePostModalProps) {
   const { currentAge } = useAge();
   const theme = currentAge !== null ? getAgeTheme(currentAge) : getAgeTheme(25);
-
   const [content, setContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<PostCategory | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const charCount = content.length;
-  const maxChars = 280;
-  const isValid = content.trim().length > 0 && selectedCategory !== null && charCount <= maxChars;
 
   const handleSubmit = async () => {
-    if (!isValid || currentAge === null) return;
-
+    if (!content.trim() || !selectedCategory || currentAge === null) return;
     setIsSubmitting(true);
-    setError(null);
 
-    // If Supabase is not configured, simulate success
-    if (!isSupabaseConfigured || !supabase) {
-      setTimeout(() => {
-        setContent('');
-        setSelectedCategory(null);
-        setIsSubmitting(false);
-        onPostCreated();
-        onClose();
-      }, 800);
-      return;
-    }
-
-    try {
-      const { error: insertError } = await supabase.from('posts').insert({
+    if (isSupabaseConfigured && supabase) {
+      await supabase.from('posts').insert({
         content: content.trim(),
         age_associated: currentAge,
         category: selectedCategory,
-      });
-
-      if (insertError) throw insertError;
-
-      // Reset form
-      setContent('');
-      setSelectedCategory(null);
-      onPostCreated();
-      onClose();
-    } catch (err) {
-      console.error('Failed to create post:', err);
-      setError('Failed to create post. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      })
+    } else {
+        await new Promise(r => setTimeout(r, 800)); // Fake delay
     }
+
+    setContent('');
+    setSelectedCategory(null);
+    setIsSubmitting(false);
+    onPostCreated();
+    onClose();
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
             onClick={onClose}
           />
 
-          {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* The Floating Glass Pane */}
             <div
-              className="w-full max-w-lg rounded-3xl overflow-hidden backdrop-blur-xl"
-              style={{
-                background: theme.cardBg,
-                border: `1px solid ${theme.cardBorder}`,
-                boxShadow: `0 25px 50px -12px rgba(0,0,0,0.4), 0 0 60px ${theme.accentGlow}20`,
-              }}
-              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-2xl bg-black/40 backdrop-blur-2xl border border-white/10 p-12 md:p-16 relative shadow-2xl"
             >
-              {/* Header */}
-              <div
-                className="flex items-center justify-between px-6 py-4 border-b"
-                style={{ borderColor: theme.cardBorder }}
-              >
-                <div>
-                  <h2 className="text-xl font-serif font-bold" style={{ color: theme.textPrimary }}>
-                    Contribute to Age {currentAge}
-                  </h2>
-                  <p className="text-sm mt-1" style={{ color: theme.textMuted }}>
-                    Share a moment of wisdom
-                    {!isSupabaseConfigured && ' (Demo Mode)'}
-                  </p>
-                </div>
-                <motion.button
-                  onClick={onClose}
-                  className="p-2 rounded-full transition-colors"
-                  style={{ color: theme.textMuted }}
-                  whileHover={{ scale: 1.1, color: theme.textPrimary }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <X size={24} />
-                </motion.button>
-              </div>
+               <button onClick={onClose} className="absolute top-8 right-8 opacity-50 hover:opacity-100 transition-opacity text-white">
+                  <X size={24} strokeWidth={1} />
+               </button>
 
-              {/* Content */}
-              <div className="p-6 space-y-6">
-                {/* Text area */}
-                <div>
-                  <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="What did life teach you at this age?"
-                    className="w-full h-32 px-4 py-3 rounded-xl resize-none focus:outline-none focus:ring-2 transition-all duration-300 font-serif text-lg"
-                    style={{
-                      background: currentAge && currentAge >= 40 ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                      color: theme.textPrimary,
-                      border: `1px solid ${theme.cardBorder}`,
-                    }}
-                    maxLength={maxChars}
-                  />
-                  <div className="flex justify-end mt-2">
-                    <span
-                      className="text-sm"
-                      style={{
-                        color: charCount > maxChars ? '#ef4444' : theme.textMuted,
-                      }}
-                    >
-                      {charCount}/{maxChars}
-                    </span>
+               <div className="mb-12">
+                  <span className="block text-xs uppercase tracking-[0.3em] text-white/60 mb-4">Contribute</span>
+                  <h2 className="text-4xl font-serif text-white italic">Age {currentAge}</h2>
+               </div>
+
+               <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="What is your truth at this age?"
+                  className="w-full h-40 bg-transparent text-2xl md:text-3xl font-serif text-white placeholder-white/20 resize-none focus:outline-none leading-relaxed italic"
+                  maxLength={280}
+               />
+               
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-end mt-12 gap-8">
+                  <div className="space-y-4 w-full">
+                     <label className="text-xs uppercase tracking-widest text-white/40 block">Category</label>
+                     <div className="flex gap-4 flex-wrap">
+                        {categories.map((cat) => (
+                           <button
+                              key={cat.value}
+                              onClick={() => setSelectedCategory(cat.value)}
+                              className={`px-6 py-2 border rounded-full text-xs uppercase tracking-widest transition-all duration-300 ${
+                                 selectedCategory === cat.value 
+                                 ? 'bg-white text-black border-white' 
+                                 : 'border-white/20 text-white/60 hover:border-white/60'
+                              }`}
+                           >
+                              {cat.label}
+                           </button>
+                        ))}
+                     </div>
                   </div>
-                </div>
 
-                {/* Category selection */}
-                <div>
-                  <label className="block text-sm mb-3" style={{ color: theme.textSecondary }}>
-                    What kind of moment is this?
-                  </label>
-                  <div className="flex gap-3 flex-wrap">
-                    {categories.map((cat) => (
-                      <motion.button
-                        key={cat.value}
-                        onClick={() => setSelectedCategory(cat.value)}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                        style={{
-                          background:
-                            selectedCategory === cat.value
-                              ? `${theme.categoryColors[cat.value]}30`
-                              : currentAge && currentAge >= 40
-                              ? 'rgba(255,255,255,0.1)'
-                              : 'rgba(0,0,0,0.05)',
-                          color:
-                            selectedCategory === cat.value
-                              ? theme.categoryColors[cat.value]
-                              : theme.textSecondary,
-                          border: `1px solid ${
-                            selectedCategory === cat.value
-                              ? theme.categoryColors[cat.value]
-                              : theme.cardBorder
-                          }`,
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <span>{cat.emoji}</span>
-                        <span>{cat.label}</span>
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Error message */}
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-sm text-red-400"
+                  <button
+                     onClick={handleSubmit}
+                     disabled={!content.trim() || !selectedCategory || isSubmitting}
+                     className="px-8 py-3 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-white/90 transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
-                    {error}
-                  </motion.p>
-                )}
+                     {isSubmitting ? 'Posting...' : 'Publish'}
+                  </button>
+               </div>
 
-                {/* Submit button */}
-                <motion.button
-                  onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
-                  className="w-full py-4 rounded-xl font-medium text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{
-                    background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentGlow})`,
-                    color: currentAge && currentAge >= 40 ? 'white' : 'hsl(0,0%,10%)',
-                    boxShadow: isValid ? `0 8px 24px ${theme.accent}40` : 'none',
-                  }}
-                  whileHover={isValid ? { scale: 1.02, boxShadow: `0 12px 32px ${theme.accent}50` } : {}}
-                  whileTap={isValid ? { scale: 0.98 } : {}}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <motion.span
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      >
-                        ⏳
-                      </motion.span>
-                      Sharing...
-                    </span>
-                  ) : (
-                    'Share Your Wisdom'
-                  )}
-                </motion.button>
-              </div>
             </div>
           </motion.div>
         </>

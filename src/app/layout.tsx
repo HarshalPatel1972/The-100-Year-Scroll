@@ -1,28 +1,23 @@
 import type { Metadata } from "next";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { AgeProvider } from "@/context/AgeContext";
 
+const playfair = Playfair_Display({ 
+  subsets: ["latin"],
+  variable: '--font-playfair',
+  display: 'swap',
+});
+
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: "The 100-Year Scroll | A Timeline of Human Wisdom",
-  description: "A collaborative timeline of human wisdom. Anonymous stories and life lessons from every age, 0 to 100. Share your struggles, joys, and realizations.",
-  keywords: ["wisdom", "life lessons", "anonymous", "timeline", "century", "experience", "advice", "age"],
-  authors: [{ name: "The 100-Year Scroll Community" }],
-  openGraph: {
-    title: "The 100-Year Scroll",
-    description: "A collaborative timeline of human wisdom from ages 0 to 100.",
-    type: "website",
-    locale: "en_US",
-    siteName: "The 100-Year Scroll",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "The 100-Year Scroll",
-    description: "A collaborative timeline of human wisdom from ages 0 to 100.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  description: "A collaborative timeline of human wisdom. Anonymous stories from every age.",
 };
 
 export default function RootLayout({
@@ -31,12 +26,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body className="antialiased min-h-screen">
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+      <body className={inter.className}>
+        <div className="noise-bg" />
         <AgeProvider>
           {children}
         </AgeProvider>
