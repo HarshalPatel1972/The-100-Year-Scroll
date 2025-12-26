@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The 100-Year Scroll 📜✨
 
-## Getting Started
+> **"A collaborative timeline of human wisdom. Anonymous stories from every age."**
 
-First, run the development server:
+![The 100-Year Scroll](https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2694&auto=format&fit=crop)
 
+The **100-Year Scroll** is a digital museum of human life. It is an honest, anonymous space where people share their deepest struggles, joys, and realizations at specific ages. The result is a universal timeline of wisdom that proves we are not alone in our journey.
+
+## 🌟 The "Timeline of Light" Design
+
+This project features a custom **"Ethereal Minimalism"** design system:
+
+- **Cinematic Entrance:** A dramatic, sentence-based input ("I am [ X ] years old today") that shifts the atmosphere in real-time.
+- **Dynamic Atmosphere:** The background is a breathing, living mesh gradient that evolves as you age:
+  - **Dawn (0-18):** Soft pinks & sky blues.
+  - **Sunlight (19-35):** Warm apricot & energetic teal.
+  - **Golden Hour (36-60):** Deep burnt orange & sage green.
+  - **Starlight (61-100):** Midnight indigo & galaxy purple + twinkling stars.
+- **Glassmorphism:** UI elements are "glass panes" floating in 3D space with heavy blurs and subtle noise textures (film grain) to kill the digital coldness.
+- **Editorial Typography:** Uses *Playfair Display* for massive, magazine-style headlines and *Inter* for clean, breathable body text.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, TypeScript)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) + Custom CSS Variables
+- **Animations:** [Framer Motion](https://www.framer.com/motion/) (Complex page transitions & layout animations)
+- **Database:** [Supabase](https://supabase.com/) (PostgreSQL + Row Level Security)
+- **Icons:** [Lucide React](https://lucide.dev/)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone & Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/HarshalPatel1972/The-100-Year-Scroll.git
+cd The-100-Year-Scroll
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment
+Create a `.env.local` file in the root directory:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Setup Database
+Run the SQL commands found in `supabase-schema.sql` in your Supabase SQL Editor to create the `posts` table and enable Row Level Security (RLS) for anonymous contributions.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Run Locally
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to enter the scroll.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🎨 Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/
+│   ├── globals.css        # Tailwind v4 config, Global Noise Texture
+│   └── layout.tsx         # Root layout with AgeProvider
+├── components/
+│   ├── LandingHero.tsx    # Cinematic "I am [Age]" entrance
+│   ├── MainFeed.tsx       # 2-Column Asymmetrical Grid Layout
+│   ├── AgeGradientBackground.tsx # The living mesh gradient
+│   ├── PostCard.tsx       # Glassmorphic story cards
+│   ├── CreatePostModal.tsx # Floating glass input modal
+│   └── ...
+├── context/
+│   └── AgeContext.tsx     # The "Brain" (Color logic, age state)
+└── lib/
+    └── supabase.ts        # Database client + Mock data fallback
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🤝 Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contributions are welcome. Please respect the **"High-End Editorial"** aesthetic guidelines:
+1. **Typography First:** If it can be done with text size/weight, do it. Avoid unnecessary borders.
+2. **Motion:** Everything must float. Use `duration-500` and `ease-out` for smoothness.
+3. **Glass:** Use `backdrop-blur-2xl` and `bg-white/5` for containers.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+License: MIT
